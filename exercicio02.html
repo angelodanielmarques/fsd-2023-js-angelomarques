@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercício 2</title>
+
+    <script>
+      const promiseOne = new Promise((resolve, reject) => {
+        const requestCatsFiles = new XMLHttpRequest();
+
+        requestCatsFiles.open("GET", "https://cat-fact.herokuapp.com/facts/");
+
+        requestCatsFiles.responseType = "json";
+
+        requestCatsFiles.onload = () => {
+          resolve(requestCatsFiles.response);
+        };
+
+        requestCatsFiles.onerror = () => {
+          reject("Error!");
+        };
+        requestCatsFiles.send();
+      });
+
+      promiseOne
+        .then(function (result) {
+          result.forEach((opinion) => {
+            console.log(`Opinion: ${opinion.text}`);
+          });
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+
+      // ----------
+
+      const promiseTwo = new Promise((resolve, reject) => {
+        try {
+          fetch("https://cat-fact.herokuapp.com/facts/")
+            .then((response) => response.json())
+            .then((requestCatsFiles) => {
+              const opinionTexts = requestCatsFiles.forEach((opinion) => {
+                console.log(`Opinion: ${opinion.text}`);
+              });
+              resolve(opinionTexts);
+            });
+        } catch (error) {
+          reject("Error!");
+        }
+      });
+
+      promiseTwo
+        .then(function (result) {
+          return result;
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+
+      // outra forma de resolver
+
+      // const promiseTwo = new Promise((resolve, reject) => {
+      //   try {
+      //     fetch("https://cat-fact.herokuapp.com/facts/")
+      //       .then((response) => response.json())
+      //       .then((requestCatsFiles) => {
+      //         resolve(requestCatsFiles);
+      //       });
+      //   } catch (error) {
+      //     reject("Error!");
+      //   }
+      // });
+
+      // promiseTwo
+      //   .then(function (result) {
+      //     result.forEach((opinion) => {
+      //       console.log(`Opinion: ${opinion.text}`);
+      //     });
+      //   })
+      //   .catch(function (error) {
+      //     console.log(error);
+      //   });
+    </script>
+  </head>
+  <body></body>
+</html>
