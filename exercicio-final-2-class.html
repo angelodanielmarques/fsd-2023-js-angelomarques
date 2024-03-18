@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style></style>
+  </head>
+
+  <body>
+    <script>
+      class Product {
+        constructor(id, name, price) {
+          this.id = id;
+          this.name = name;
+          this.price = price;
+        }
+      }
+
+      class Ecommerce {
+        constructor(products, cart) {
+          this.products = products;
+          this.cart = cart;
+        }
+
+        addProduct(product) {
+          this.products.push(product);
+        }
+
+        setProductPrice(productId, price) {
+          this.products = this.products.map((product) => {
+            return product.id === productId ? { ...product, price } : product;
+          });
+        }
+
+        getAllProducts() {
+          return this.products;
+        }
+
+        getAllProductsNames() {
+          return this.products.map((product) => product.name).join(",");
+        }
+
+        getProductById(productId) {
+          return this.products.find((product) => product.id === productId);
+        }
+
+        getProductsByPrice(initialPrice, finalPrice) {
+          return this.products.filter(
+            (product) =>
+              product.price >= initialPrice && product.price <= finalPrice
+          );
+        }
+
+        addProductToCard(product) {
+          this.cart.push(product);
+        }
+
+        getCart() {
+          return this.cart;
+        }
+
+        getCartTotalPrice() {
+          return this.cart
+            .map((product) => product.price)
+            .reduce((acc, price) => acc + price, 0);
+        }
+      }
+
+      const ecommerce = new Ecommerce([], []);
+
+      ecommerce.addProduct(new Product("1", "Product 1", 1));
+      ecommerce.addProduct(new Product("2", "Product 2", 2));
+      ecommerce.addProduct(new Product("3", "Product 3", 3));
+      ecommerce.addProduct(new Product("4", "Product 4", 4));
+
+      ecommerce.setProductPrice("1", 10);
+      ecommerce.setProductPrice("2", 20);
+      ecommerce.setProductPrice("3", 30);
+      ecommerce.setProductPrice("4", 40);
+
+      const products = ecommerce.getAllProducts();
+      console.log("products", products);
+
+      const productsNames = ecommerce.getAllProductsNames();
+      console.log("productsNames", productsNames);
+
+      const product1 = ecommerce.getProductById("1");
+      console.log("product1", product1);
+
+      const productsByPrice = ecommerce.getProductsByPrice(20, 30);
+      console.log("productsByPrice", productsByPrice);
+
+      ecommerce.addProductToCard(new Product("5", "Product 5", 5));
+      ecommerce.addProductToCard(new Product("6", "Product 6", 6));
+      ecommerce.addProductToCard(new Product("7", "Product 7", 7));
+      ecommerce.addProductToCard(new Product("8", "Product 8", 8));
+
+      const cartProducts = ecommerce.getCart();
+      console.log("cartProducts", cartProducts);
+
+      const cartTotalPrice = ecommerce.getCartTotalPrice();
+      console.log("cartTotalPrice", cartTotalPrice);
+    </script>
+  </body>
+</html>

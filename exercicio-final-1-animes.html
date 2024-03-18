@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        margin: 0;
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .card {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+        cursor: pointer;
+      }
+
+      .thumbnail {
+        max-width: 100%;
+        height: auto;
+      }
+
+      .box {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 16px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+      }
+
+      footer {
+        text-align: center;
+        margin-top: auto;
+        color: #555;
+        padding: 10px;
+        background-color: #f9f9f9;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <footer></footer>
+    <script>
+      fetch("https://api.jikan.moe/v4/top/anime")
+        .then((response) => response.json())
+        .then((animes) => createGrid(animes));
+
+      const details = document.createElement("div");
+      details.classList.add("box");
+      document.body.appendChild(details);
+
+      const createGrid = (animes) => {
+        const excellentAnimes = animes.data.filter((anime) => anime.score > 9);
+
+        const grid = document.createElement("div");
+        document.body.prepend(grid);
+
+        grid.classList.add("grid-container");
+
+        excellentAnimes.forEach((anime) => {
+          const card = document.createElement("div");
+          card.classList.add("card");
+          card.onclick = (event) => {
+            if (
+              event.target.classList.contains("thumbnail") ||
+              event.target.classList.contains("title")
+            ) {
+              showDetails(anime);
+            }
+          };
+
+          card.insertAdjacentHTML(
+            "beforeend",
+            `<img class='thumbnail' src='${animePoster(
+              anime
+            )}' alt='${animeTitle(anime)}'/><p class='title'><b>${animeTitle(
+              anime
+            )}</b></p>`
+          );
+
+          grid.appendChild(card);
+        });
+
+        grid.addEventListener("click", (event) => {
+          const clickedCard = event.target.closest(".card");
+          if (clickedCard) {
+            const anime = excellentAnimes.find(
+              (anime) =>
+                animeTitle(anime) ===
+                clickedCard.querySelector(".title b").textContent
+            );
+            showDetails(anime);
+          }
+        });
+      };
+
+      const showDetails = (anime) => {
+        const genresList = animeGenres(anime);
+        details.innerHTML = `
+        <img class='thumbnail' src='${animePoster(anime)}' alt='${animeTitle(
+          anime
+        )}'/>
+        <p><b>Title:</b> ${animeTitle(anime)}</p>
+        <p><b>Rating:</b> ${animeRating(anime)}</p>
+        <p><b>Year:</b> ${animeYear(anime)}</p>
+        <p><b>Airing:</b> ${isAiring(anime)}</p>
+        <p><b>Genres:</b> ${genresList}</p>
+      `;
+
+        details.style.display = "block";
+      };
+
+      document.body.addEventListener("click", (event) => {
+        const clickedCard = event.target.closest(".card");
+        if (!clickedCard) {
+          details.style.display = "none";
+        }
+      });
+
+      const animePoster = (anime) => anime.images.jpg.large_image_url;
+      const animeTitle = (anime) => anime.title;
+      const animeRating = (anime) => anime.rating;
+      const animeYear = (anime) => anime.year;
+      const isAiring = (anime) => (anime.airing ? "Yes" : "No");
+      const animeGenres = (anime) =>
+        anime.genres.map((genre) => genre.name).join(", ");
+
+      const year = new Date();
+      const presentYear = year.getFullYear();
+      const footer = document.querySelector("footer");
+      footer.insertAdjacentHTML(
+        "afterbegin",
+        `<p>${presentYear} &copy; Angelo Marques</p>`
+      );
+    </script>
+  </body>
+</html>
