@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        margin: 0;
+        align-items: center;
+        justify-content: center;
+        background-color: rgb(241, 241, 241);
+      }
+
+      footer {
+        text-align: center;
+        margin-top: auto;
+        color: #555;
+        padding: 10px;
+        background-color: #f9f9f9;
+        width: 100%;
+      }
+
+      .product-container {
+        background-color: #ffffff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-width: 800px;
+        width: 100%;
+        margin: 20px;
+      }
+
+      .product {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .product img {
+        width: 250px;
+        margin-right: 20px;
+      }
+
+      .product-details {
+        flex: 1;
+      }
+
+      .product-details h2 {
+        margin-top: 0;
+      }
+
+      .product-details p {
+        margin: 5px 0;
+      }
+
+      .bold {
+        font-weight: bold;
+      }
+
+      .thumbnail-container {
+        white-space: nowrap;
+        font-size: 0;
+      }
+
+      .thumbnail {
+        display: inline-block;
+        width: 30%;
+        margin: 0 10px;
+      }
+
+      .thumbnail img {
+        width: 100%;
+        height: auto;
+        max-height: 250px;
+      }
+    </style>
+  </head>
+  <body>
+    <footer></footer>
+    <script>
+      // Começo por pedir os dados do produto escolhido (produto 2) e os primeiros três produtos da mesma categoria (men's clothing) excluindo o produto 2, uma vez que o mesmo já está a ser mostrado
+      Promise.all([
+        fetch("https://fakestoreapi.com/products/2").then((response) =>
+          response.json()
+        ),
+        fetch("https://fakestoreapi.com/products/category/men's clothing").then(
+          (response) => response.json()
+        ),
+      ]).then(([product2, menClothingProducts]) => {
+        // Como vou usar prepend começo pelo final da página: o container dos 3 produtos da mesma categoria
+        const thumbnailContainer = createThumbnailContainer();
+        document.body.prepend(thumbnailContainer);
+
+        // Agora o container com o produto principal (produto 2)
+        const productContainer = createProductContainer();
+        document.body.prepend(productContainer);
+
+        // Agora vou buscar a função criada para obter o template do produto, criando assim um template para o produto 2
+        createProductView(product2, productContainer);
+
+        // Filtro os produtos da categoria men's clothing de forma a remover o produto 2
+        const filteredMenClothingProducts = menClothingProducts.filter(
+          (product) => product.id !== product2.id
+        );
+
+        // Usando essa filtragem posso criar o container com os previews dos 3 produtos da mesma categoria
+        filteredMenClothingProducts
+          .slice(0, 3)
+          .forEach((product) =>
+            createThumbnailView(product, thumbnailContainer)
+          );
+      });
+
+      // Função para criar um container do produto principal mostrado na página
+      const createProductContainer = () => {
+        const productContainer = document.createElement("div");
+        productContainer.classList.add("product-container");
+        return productContainer;
+      };
+
+      // Função para criar um container com 3 produtos da mesma categoria do produto principal
+      const createThumbnailContainer = () => {
+        const thumbnailContainer = document.createElement("div");
+        thumbnailContainer.classList.add("product-container");
+        return thumbnailContainer;
+      };
+
+      // Função para criar o template do produto principal
+      const createProductView = (product, container) => {
+        const productDiv = document.createElement("div");
+        productDiv.classList.add("product");
+
+        const image = document.createElement("img");
+        image.src = productImage(product);
+        image.alt = productTitle(product);
+
+        const productDetailsDiv = document.createElement("div");
+        productDetailsDiv.classList.add("product-details");
+
+        const title = document.createElement("h2");
+        title.innerHTML = productTitle(product);
+
+        const category = document.createElement("p");
+        category.innerHTML = `<strong>Category:</strong> ${productCategory(
+          product
+        )}`;
+
+        const description = document.createElement("p");
+        description.innerHTML = productDescription(product);
+
+        const price = document.createElement("p");
+        price.innerHTML = `<strong>Price:</strong> $${productPrice(product)}`;
+
+        const rating = document.createElement("p");
+        rating.innerHTML = `<strong>Rating:</strong> ${productRating(
+          product
+        )}/5`;
+
+        productDetailsDiv.appendChild(title);
+        productDetailsDiv.appendChild(category);
+        productDetailsDiv.appendChild(description);
+        productDetailsDiv.appendChild(price);
+        productDetailsDiv.appendChild(rating);
+
+        productDiv.appendChild(image);
+        productDiv.appendChild(productDetailsDiv);
+
+        container.appendChild(productDiv);
+      };
+
+      // Função para criar os previews dos 3 produtos da mesma categoria
+      const createThumbnailView = (product, container) => {
+        const thumbnailDiv = document.createElement("div");
+        thumbnailDiv.classList.add("thumbnail");
+
+        const image = document.createElement("img");
+        image.src = productImage(product);
+
+        thumbnailDiv.appendChild(image);
+
+        container.appendChild(thumbnailDiv);
+      };
+
+      const productImage = (product) => product.image;
+      const productTitle = (product) => product.title;
+      const productCategory = (product) => product.category;
+      const productDescription = (product) => product.description;
+      const productPrice = (product) => product.price;
+      const productRating = (product) => product.rating.rate;
+
+      const year = new Date();
+      const presentYear = year.getFullYear();
+      const footer = document.querySelector("footer");
+      footer.insertAdjacentHTML(
+        "afterbegin",
+        `<p>Copyright ${presentYear}</p>`
+      );
+    </script>
+  </body>
+</html>
